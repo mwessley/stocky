@@ -12,9 +12,9 @@ class Stocker():
 		self.symbols = symbols
 		self.stocks = {} 
 	
-	def get_all(self,short=5,long=10):
+	def get_all(self,short=5,long=10,mean=9):
 		for s in self.symbols:
-			self.analyze_stock(s,short,long)
+			self.analyze_stock(s,short,long,mean)
 
 	def get_stock(self, name = 'AAPL'):
 		if name in self.stocks.keys():
@@ -52,7 +52,7 @@ class Stocker():
 		#plt.show()
 		return aapl, conv
 
-	def analyze_stock(self, name = 'AAPL',short=5,long=12):
+	def analyze_stock(self, name = 'AAPL',short=5,long=12,mean=9):
 
 		aapl, conv = self.get_stock(name)
 
@@ -108,10 +108,12 @@ class Stocker():
 		print(name)
 		plt.show()
 
-		signals['12'] = aapl['Close'].ewm(span=12, adjust=False).mean()
-		signals['26'] = aapl['Close'].ewm(span=26, adjust=False).mean()
+		signals['12'] = aapl['Close'].ewm(span=short, adjust=False).mean()
+		signals['26'] = aapl['Close'].ewm(span=long, adjust=False).mean()
 		macd = signals['12']-signals['26']
-		macd9 = macd.ewm(span=9, adjust=False).mean()
+		macd9 = macd.ewm(span=mean, adjust=False).mean()
+		signals['macd'] = .0
+		signals['macd9'] = 0.0
 		signals['signal2'] = 0.0
 		signals['signal2'][short_window:] = np.where(macd[short_window:] 
 							> macd9[short_window:], 1.0, 0.0)   
@@ -137,6 +139,7 @@ class Stocker():
 		plt.show()
 
 		print(signals.tail(10))
+		self.stocks[name]['signal'] = signals
 		return {'sig':signals, 'stock':aapl}
 
 # %%
@@ -153,17 +156,8 @@ stocky = Stocker(symbols)
 # %%
 stocky.symbols = ['ADSK','AAPL','MSFT','ADBE', \
 	'ICLN','TTWO','IFNNY','LSCC','AMD', \
-	'VBK.DE','STM','NXPI', 'ADI', 'VWSYF', 'MDB']
-stocky.get_all(4,15)
+	'VBK.DE','STM','NXPI', 'ADI', 'VWSYF', 'MDB', \
+	'GOOGL','ACC.OL','FCEL','BNTX','BLDP','DEZ.DE', 'NEL.OL']
+stocky.get_all(short=3,long=7,mean=7)
 # %%
 stocky.stocks['IFNNY']
-# %%
-# VBK Verbio
-# VWSYF Vestas
-# ADI Analog Devices
-# 
-stocky.names = {
-	'ADSK': 'Autodesk',
-	'AAPL': 'Apple',
-	'MDB': 'MongoDB'
-	} 
