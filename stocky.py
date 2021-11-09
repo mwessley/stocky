@@ -71,6 +71,7 @@ class Stocker():
 		# Create long simple moving average over the long window
 		signals['long_mavg'] = aapl['Close'].rolling(window=long_window, min_periods=1, center=False).mean()
 		signals['long_mavg'] = aapl['Close'].ewm(span=long_window, adjust=False).mean()
+		signals['longest_mavg'] = aapl['Close'].ewm(span=20, adjust=False).mean()
 		signals['mark'] = aapl['Close'].rolling(window=1, min_periods=1, center=False).mean()
 
 		# Create signals
@@ -92,7 +93,7 @@ class Stocker():
 		aapl['Close'].plot(ax=ax1, color='r', lw=2.)
 
 		# Plot the short and long moving averages
-		signals[['short_mavg', 'long_mavg']].plot(ax=ax1, lw=2.)
+		signals[['short_mavg', 'long_mavg', 'longest_mavg']].plot(ax=ax1, lw=2.)
 
 		# Plot the buy signals
 		ax1.plot(signals.loc[signals.positions == 1.0].index, 
@@ -110,6 +111,7 @@ class Stocker():
 
 		signals['12'] = aapl['Close'].ewm(span=short, adjust=False).mean()
 		signals['26'] = aapl['Close'].ewm(span=long, adjust=False).mean()
+		signals['20'] = aapl['Close'].ewm(span=20, adjust=False).mean()
 		macd = signals['12']-signals['26']
 		macd9 = macd.ewm(span=mean, adjust=False).mean()
 		signals['macd'] = .0
@@ -126,7 +128,7 @@ class Stocker():
 		# Add a subplot and label for y-axis
 		ax1 = fig.add_subplot(111,  ylabel='Price in $')
 		# Plot the buy signals
-		signals[['12', '26']].plot(ax=ax1, lw=2.)
+		signals[['12', '26', '20']].plot(ax=ax1, lw=2.)
 		aapl['Close'].plot(ax=ax1, color='r', lw=2.)
 		ax1.plot(signals.loc[signals.positions2 == 1.0].index, 
 			signals.mark[signals.positions2 == 1.0],
@@ -157,7 +159,9 @@ stocky = Stocker(symbols)
 stocky.symbols = ['ADSK','AAPL','MSFT','ADBE', \
 	'ICLN','TTWO','IFNNY','LSCC','AMD', \
 	'VBK.DE','STM','NXPI', 'ADI', 'VWSYF', 'MDB', \
-	'GOOGL','ACC.OL','FCEL','BNTX','BLDP','DEZ.DE', 'NEL.OL']
+	'GOOGL','ACC.OL','FCEL','BNTX','BLDP','DEZ.DE', \
+	'NEL.OL', 'TXN', 'TSLA', 'NVDA']
 stocky.get_all(short=3,long=7,mean=7)
 # %%
-stocky.stocks['IFNNY']
+stocky.stocks['IFNNY']['stock']['Close']
+# %%
