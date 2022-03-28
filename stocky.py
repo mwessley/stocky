@@ -25,30 +25,33 @@ class Stocker():
 		print(today.day, today.month, today.year)
 		try:
 			aapl = pdr.get_data_yahoo(name, 
-						start=datetime.datetime(today.year-1, today.month+7, today.day), 
+						start=datetime.datetime(today.year, today.month-2, today.day), 
 						end=datetime.datetime(today.year, today.month, today.day))
 			conv = pdr.get_data_yahoo('EURUSD=X', 
-						start=datetime.datetime(today.year-1, today.month+7, today.day), 
+						start=datetime.datetime(today.year, today.month-2, today.day), 
 						end=datetime.datetime(today.year, today.month, today.day))
 		except Exception as e:
 			print(e)
 			return None, None
 		aapl = aapl
-		print(aapl)
+		# print(aapl)
 		# Plot the closing prices for `aapl`
 		#aapl['Close'].plot(grid=True)
 		adj_close_px = aapl['Adj Close']/conv['Adj Close']
 
 		# Calculate the moving average
-		#moving_avg = adj_close_px.rolling(window=12).mean()
-		print(aapl.columns)
+		moving_avg = adj_close_px.rolling(window=12).mean()
+		# print(aapl.index)
+		aapl = aapl[~aapl.index.duplicated()]
+		print(aapl[aapl.index.duplicated()])
 		#print(moving_avg)
 		# Inspect the result
 		#print(moving_avg[-10:])
 		print("lol")
 		# Short moving window rolling mean
 		a13 = adj_close_px.rolling(window=13).mean()
-		aapl['13'] = a13
+		print(a13.index.difference(aapl))
+		#aapl['13'] = a13
 		# Long moving window rolling mean
 		a32 = adj_close_px.rolling(window=32).mean()
 		aapl['32'] = a32
