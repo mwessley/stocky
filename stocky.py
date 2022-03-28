@@ -25,10 +25,10 @@ class Stocker():
 		print(today.day, today.month, today.year)
 		try:
 			aapl = pdr.get_data_yahoo(name, 
-						start=datetime.datetime(today.year, today.month-2, today.day), 
+						start=datetime.datetime(today.year-1, today.month+7, today.day), 
 						end=datetime.datetime(today.year, today.month, today.day))
 			conv = pdr.get_data_yahoo('EURUSD=X', 
-						start=datetime.datetime(today.year, today.month-2, today.day), 
+						start=datetime.datetime(today.year-1, today.month+7, today.day), 
 						end=datetime.datetime(today.year, today.month, today.day))
 		except Exception as e:
 			print(e)
@@ -50,11 +50,12 @@ class Stocker():
 		print("lol")
 		# Short moving window rolling mean
 		a13 = adj_close_px.rolling(window=13).mean()
-		print(a13.index.difference(aapl))
+		print(a13.index.shape)
+		print(aapl.index.shape)
 		#aapl['13'] = a13
 		# Long moving window rolling mean
 		a32 = adj_close_px.rolling(window=32).mean()
-		aapl['32'] = a32
+		#aapl['32'] = a32
 		# Plot the adjusted closing price, the short and long windows of rolling means
 		#aapl[['Adj Close', '12', '32']].plot()
 
@@ -167,7 +168,7 @@ stocky = Stocker(symbols)
 
 
 # %%
-stocky.symbols = ['AAPL','MSFT','ADBE', \
+stocky.symbols = ['ADSK','AAPL','MSFT','ADBE', \
 	'ICLN','TTWO','IFNNY','LSCC','AMD', \
 	'VBK.DE','STM', 'NXPI', 'ADI', 'VWSYF', \
 	'GOOGL','ACC.OL','FCEL','BNTX','BLDP','DEZ.DE', \
