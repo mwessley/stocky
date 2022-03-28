@@ -21,13 +21,18 @@ class Stocker():
 			print(name, "in keys")
 			return self.stocks[name]['stock'], None
 		today = datetime.datetime.now()
+		print(name)
 		print(today.day, today.month, today.year)
-		aapl = pdr.get_data_yahoo(name, 
-					start=datetime.datetime(today.year, today.month-4, today.day), 
-					end=datetime.datetime(today.year, today.month, today.day))
-		conv = pdr.get_data_yahoo('EURUSD=X', 
-					start=datetime.datetime(today.year, today.month-4, today.day), 
-					end=datetime.datetime(today.year, today.month, today.day))
+		try:
+			aapl = pdr.get_data_yahoo(name, 
+						start=datetime.datetime(today.year-1, today.month+7, today.day), 
+						end=datetime.datetime(today.year, today.month, today.day))
+			conv = pdr.get_data_yahoo('EURUSD=X', 
+						start=datetime.datetime(today.year-1, today.month+7, today.day), 
+						end=datetime.datetime(today.year, today.month, today.day))
+		except Exception as e:
+			print(e)
+			return None, None
 		aapl = aapl
 		print(aapl)
 		# Plot the closing prices for `aapl`
@@ -35,13 +40,18 @@ class Stocker():
 		adj_close_px = aapl['Adj Close']/conv['Adj Close']
 
 		# Calculate the moving average
-		moving_avg = adj_close_px.rolling(window=12).mean()
+		#moving_avg = adj_close_px.rolling(window=12).mean()
+		print(aapl.columns)
+		#print(moving_avg)
 		# Inspect the result
 		#print(moving_avg[-10:])
+		print("lol")
 		# Short moving window rolling mean
-		aapl['12'] = adj_close_px.rolling(window=12).mean()
+		a13 = adj_close_px.rolling(window=13).mean()
+		aapl['13'] = a13
 		# Long moving window rolling mean
-		aapl['32'] = adj_close_px.rolling(window=32).mean()
+		a32 = adj_close_px.rolling(window=32).mean()
+		aapl['32'] = a32
 		# Plot the adjusted closing price, the short and long windows of rolling means
 		#aapl[['Adj Close', '12', '32']].plot()
 
@@ -55,6 +65,9 @@ class Stocker():
 	def analyze_stock(self, name = 'AAPL',short=5,long=12,mean=9):
 
 		aapl, conv = self.get_stock(name)
+		if aapl is None:
+			print("could not get Stock %s", name)
+			return
 
 		# Initialize the short and long windows
 		short_window = short
@@ -96,8 +109,8 @@ class Stocker():
 		signals[['short_mavg', 'long_mavg', 'longest_mavg']].plot(ax=ax1, lw=2.)
 
 		# Plot the buy signals
-		ax1.plot(signals.loc[signals.positions == 1.0].index, 
-			signals.mark[signals.positions == 1.0],
+		ax1.plot(signals.loc[signals['positions'] == 1.0].index, 
+			signals.mark[signals['positions'] == 1.0],
 			'^', markersize=5, color='b')
 			
 		# Plot the sell signals
@@ -147,21 +160,19 @@ class Stocker():
 # %%
 symbols = ['ADSK','AAPL','MSFT','ADBE','ICLN','TTWO','IFNNY','LSCC','AMD','VBK.DE','STM']
 stocks = {}
-#for s in symbols:
-#	stocks[s] = analyze_stock(s, 4, 8)
-#for s in symbols:
-#	stocks[s] = analyze_stock(s, 4, 8)
-
 stocky = Stocker(symbols)
 
 
 # %%
-stocky.symbols = ['ADSK','AAPL','MSFT','ADBE', \
+stocky.symbols = ['AAPL','MSFT','ADBE', \
 	'ICLN','TTWO','IFNNY','LSCC','AMD', \
-	'VBK.DE','STM','NXPI', 'ADI', 'VWSYF', 'MDB', \
+	'VBK.DE','STM', 'NXPI', 'ADI', 'VWSYF', \
 	'GOOGL','ACC.OL','FCEL','BNTX','BLDP','DEZ.DE', \
-	'NEL.OL', 'TXN', 'TSLA', 'NVDA']
-stocky.get_all(short=3,long=7,mean=7)
+	'NEL.OL', 'TXN', 'TSLA', 'NVDA', 'MDB', '2PP.DE']
+stocky.get_all(short=4,long=8,mean=8)
 # %%
 stocky.stocks['IFNNY']['stock']['Close']
+# %%
+
+stocky.get_stock('AAPL')
 # %%
